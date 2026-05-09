@@ -1,12 +1,16 @@
 use std::error::Error;
-
+use minigrep::Config;
 fn main() {
+    // get command line arguments
     let args: Vec<String> = std::env::args().collect();
+
+    // create new config and set env variable to ignore case
     let config = Config::build(&args).unwrap_or_else(|err| {
         eprintln!("Problem building config: {}", err);
         std::process::exit(1);
     });
 
+    // print results
     if let Err(err) = run(config) {
         eprintln!("Application error: {}", err);
         std::process::exit(1);
@@ -24,25 +28,4 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
         println!("{}", line);
     }
     Ok(())
-}
-struct Config {
-    query: String,
-    file_path: String,
-    ignore_case: bool,
-}
-
-impl Config {
-    fn build(args: &[String]) -> Result<Config, &str> {
-        if args.len() < 3 {
-            return Err("Not enough arguments");
-        };
-        let query = args[1].clone();
-        let file_path = args[2].clone();
-        let ignore_case = std::env::var("IGNORE_CASE").is_ok();
-        Ok(Config {
-            query,
-            file_path,
-            ignore_case,
-        })
-    }
 }
